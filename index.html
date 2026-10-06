@@ -263,12 +263,12 @@ function initScene() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.35;
+  renderer.toneMappingExposure = 0.95;
   document.getElementById('wrap').appendChild(renderer.domElement);
 
   composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  bloomPass = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.85, 0.55, 0.2);
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.35, 0.4, 0.85);
   composer.addPass(bloomPass);
 
   controls = new OrbitControls(camera, renderer.domElement);
@@ -287,7 +287,7 @@ function initScene() {
 
 function buildLights() {
   scene.add(new THREE.AmbientLight(0x0c1230, 0.55));
-  moonLight = new THREE.DirectionalLight(0xdce8ff, 2.0);
+  moonLight = new THREE.DirectionalLight(0xdce8ff, 1.2);
   moonLight.position.set(3, 6, 4);
   moonLight.castShadow = true;
   moonLight.shadow.mapSize.set(1024, 1024);
@@ -329,13 +329,13 @@ function buildMoonScene() {
   const moonGroup = new THREE.Group();
   moonMesh = new THREE.Mesh(
     new THREE.SphereGeometry(1.9, 64, 64),
-    new THREE.MeshStandardMaterial({ color: 0xe6edff, roughness: 0.85, metalness: 0.02, emissive: 0x1a2440, emissiveIntensity: 0.12 })
+    new THREE.MeshStandardMaterial({ color: 0xe6edff, roughness: 0.85, metalness: 0.02, emissive: 0x1a2440, emissiveIntensity: 0.05 })
   );
   moonMesh.position.set(0, 0.9, 0);
   moonMesh.castShadow = true; moonMesh.receiveShadow = true;
   moonGroup.add(moonMesh);
 
-  const craterMat = new THREE.MeshStandardMaterial({ color: 0xaebedd, roughness: 0.95 });
+  const craterMat = new THREE.MeshStandardMaterial({ color: 0x7d8db3, roughness: 1 });
   for (let i = 0; i < 26; i++) {
     const dir = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() * 0.5 + 0.3).normalize();
     const crater = new THREE.Mesh(new THREE.CircleGeometry(0.06 + Math.random() * 0.16, 16), craterMat);
@@ -419,35 +419,35 @@ function buildNameSign() {
 function setEclipse(on) {
   if (eclipseMode === on || !moonLight) return;
   eclipseMode = on;
-  moonLight.intensity = eclipseMode ? 0.65 : (brilloMode ? 3.6 : 2.0);
+  moonLight.intensity = eclipseMode ? 0.6 : (brilloMode ? 1.9 : 1.2);
   if (eclipseMode) {
     moonLight.color.set(0xff8a5a); fillLight.color.set(0xaa4422); keyLight.color.set(0xdb6a3a);
     moonMesh.material.emissive.set(0x5a1c0a);
   } else keyLight.color.set(0xbcd4ff);
   scene.background = new THREE.Color(eclipseMode ? 0x0a0402 : 0x02040c);
   scene.fog.color.set(eclipseMode ? 0x0a0402 : 0x02040c);
-  renderer.toneMappingExposure = brilloMode ? (eclipseMode ? 1.1 : 2.1) : (eclipseMode ? 1.1 : 1.35);
-  bloomPass.strength = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 0.85);
+  renderer.toneMappingExposure = brilloMode ? (eclipseMode ? 0.85 : 1.2) : (eclipseMode ? 0.85 : 0.95);
+  bloomPass.strength = brilloMode ? 0.8 : (eclipseMode ? 0.5 : 0.35);
 }
 
 /* ── BRILLO ── */
 function setBrillo(on) {
   if (brilloMode === on || !bloomPass) return;
   brilloMode = on;
-  bloomPass.strength = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 0.85);
-  bloomPass.radius = brilloMode ? 0.9 : 0.5;
-  bloomPass.threshold = brilloMode ? 0.05 : 0.2;
-  renderer.toneMappingExposure = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 1.35);
-  keyLight.distance = brilloMode ? 14 : 10;
-  moonLight.intensity = brilloMode ? 3.6 : (eclipseMode ? 0.65 : 2.0);
+  bloomPass.strength = brilloMode ? 0.8 : (eclipseMode ? 0.5 : 0.35);
+  bloomPass.radius = brilloMode ? 0.6 : 0.4;
+  bloomPass.threshold = brilloMode ? 0.7 : 0.85;
+  renderer.toneMappingExposure = brilloMode ? 1.2 : (eclipseMode ? 0.85 : 0.95);
+  keyLight.distance = brilloMode ? 12 : 10;
+  moonLight.intensity = brilloMode ? 1.9 : (eclipseMode ? 0.6 : 1.2);
 }
 
 function onSceneClick(e) {
   clickCount++;
   burst(e.clientX, e.clientY);
-  flashLight.intensity = 4.0;
-  bloomPass.strength = eclipseMode ? 1.7 : 1.5;
-  setTimeout(() => { flashLight.intensity = 0; bloomPass.strength = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 0.85); }, 170);
+  flashLight.intensity = 2.0;
+  bloomPass.strength = eclipseMode ? 0.9 : 0.8;
+  setTimeout(() => { flashLight.intensity = 0; bloomPass.strength = brilloMode ? 0.8 : (eclipseMode ? 0.5 : 0.35); }, 170);
   stars.forEach(s => { s.userData.flash = 1.0; });
   for (let i = 0; i < 3; i++) setTimeout(spawnPetal, i * 90);
   const lc = document.getElementById('love-count');
@@ -490,14 +490,14 @@ function animateMoonColors(seconds) {
   blendedMoon.copy(moonPalette[first]).lerp(moonPalette[second], mix);
   moonMesh.material.color.copy(blendedMoon);
   if (!eclipseMode) {
-    moonMesh.material.emissive.copy(blendedMoon).multiplyScalar(0.27);
+    moonMesh.material.emissive.copy(blendedMoon).multiplyScalar(0.05);
     moonLight.color.copy(blendedMoon);
     fillLight.color.copy(blendedMoon);
   }
   const pulse = 1 + Math.sin(seconds * 2.2) * 0.045;
   if (auraMesh) {
     auraMesh.material.color.copy(blendedMoon);
-    auraMesh.material.opacity = 0.68 + 0.18 * Math.sin(seconds * 1.7);
+    auraMesh.material.opacity = 0.28 + 0.08 * Math.sin(seconds * 1.7);
     auraMesh.scale.setScalar(7.6 * pulse);
   }
   const halo = scene.userData.moonGroup?.userData.halo;
@@ -533,7 +533,7 @@ function animate() {
 
   fillLight.position.x = Math.cos(t * 0.22) * 2.6;
   fillLight.position.z = Math.sin(t * 0.18) * 2.0;
-  keyLight.intensity = (brilloMode ? 3.2 : 1.4) + Math.sin(t * 3.2) * 0.2;
+  keyLight.intensity = (brilloMode ? 1.6 : 0.9) + Math.sin(t * 3.2) * 0.1;
   if (flashLight.intensity > 0) flashLight.intensity *= 0.86;
 
   controls.update();
