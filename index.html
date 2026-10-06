@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Bajo tu Luna · Un cielo para ti</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@100;200;300&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#02030c;font-family:'Cormorant Garamond',serif}
+#cur,#cur2{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;transform:translate(-50%,-50%)}
+#cur{width:10px;height:10px;background:radial-gradient(circle,#fff,#a8c8ff);box-shadow:0 0 14px 4px rgba(150,190,255,.7);transition:transform .06s}
+#cur2{width:38px;height:38px;border:1px solid rgba(160,195,255,.25);transition:left .16s ease,top .16s ease}
+#loading{position:fixed;inset:0;z-index:600;background:#02030c;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1.2s ease}
+.load-moon{font-size:3rem;animation:spin 4s linear infinite;margin-bottom:1.5rem;filter:drop-shadow(0 0 20px rgba(170,200,255,.6))}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.load-bar-wrap{width:180px;height:1px;background:rgba(170,200,255,.1);overflow:hidden}
+.load-bar{height:100%;background:linear-gradient(90deg,transparent,#cfe0ff);width:0%;transition:width .25s ease}
+.load-txt{font-family:'Josefin Sans',sans-serif;font-size:.58rem;font-weight:100;letter-spacing:.45em;color:rgba(190,210,255,.3);text-transform:uppercase;margin-top:1rem}
+#intro{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%,#0a1330 0%,#010208 80%);transition:opacity 2s ease;opacity:0;pointer-events:none}
+.intro-box{text-align:center;position:relative;z-index:2;animation:riseIn 1.6s cubic-bezier(.16,1,.3,1) both;padding:0 20px}
+@keyframes riseIn{from{opacity:0;transform:translateY(50px) scale(.94);filter:blur(3px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+.moon-wrap{position:relative;display:inline-block;width:110px;height:110px;margin-bottom:1.8rem;cursor:none;transition:transform 1.1s cubic-bezier(.7,0,.84,0),opacity 1.1s ease}
+.moon-wrap.entering{transform:scale(20);opacity:0}
+.moon-core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#cfe0ff 55%,#8fa8d8 100%);box-shadow:0 0 35px 12px rgba(160,190,255,.45),0 0 70px 25px rgba(120,150,230,.18);animation:pulse 3.2s ease-in-out infinite,introRainbow 18s linear infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.05)}}
+@keyframes introRainbow{0%{filter:hue-rotate(0)}100%{filter:hue-rotate(360deg)}}
+.moon-crater{position:absolute;border-radius:50%;background:rgba(120,140,190,.35)}
+.mc1{width:10px;height:10px;top:20px;left:22px}.mc2{width:6px;height:6px;top:38px;left:44px}.mc3{width:8px;height:8px;top:14px;left:44px}
+.moon-wrap::before,.moon-wrap::after{content:"";position:absolute;inset:2px;border-radius:50%;border:1px solid rgba(190,210,255,.3);animation:orbital 7s linear infinite}
+.moon-wrap::after{inset:-10px;opacity:.4;animation-direction:reverse;animation-duration:11s}
+@keyframes orbital{to{transform:rotate(360deg) scale(1.16);opacity:.1}}
+.intro-h1{font-size:clamp(2.6rem,7.5vw,5rem);font-weight:300;font-style:italic;letter-spacing:.04em;line-height:1;color:transparent;background:linear-gradient(150deg,#fff 0%,#cfe0ff 45%,#7f9fd6 100%);-webkit-background-clip:text;background-clip:text;margin-bottom:.5rem;transition:opacity .5s ease}
+.intro-tag{font-family:'Josefin Sans',sans-serif;font-size:.68rem;font-weight:100;letter-spacing:.5em;text-transform:uppercase;color:rgba(190,210,255,.5);margin-bottom:3rem;transition:opacity .5s ease}
+.intro-line{width:50px;height:1px;background:linear-gradient(90deg,transparent,rgba(180,205,255,.4),transparent);margin:0 auto 3rem;transition:opacity .5s ease}
+.intro-foot{margin-top:2rem;font-family:'Josefin Sans',sans-serif;font-size:.55rem;font-weight:100;letter-spacing:.3em;color:rgba(150,170,220,.28);text-transform:uppercase;transition:opacity .5s ease}
+.fading-out{opacity:0!important}
+#wrap{position:fixed;inset:0;opacity:0;transition:opacity 2.5s ease}
+#wrap.show{opacity:1}
+.fp{position:fixed;pointer-events:none;z-index:30;animation:fallPetal linear forwards}
+@keyframes fallPetal{0%{transform:translateY(-30px) rotate(0) scale(.9);opacity:.95}15%{opacity:1}100%{transform:translateY(108vh) rotate(400deg) scale(1.05);opacity:0}}
+#ui{position:fixed;inset:0;pointer-events:none;z-index:40}
+#love-count{position:absolute;top:24px;left:28px;font-style:italic;font-size:.9rem;color:rgba(200,220,255,.32);transition:all .4s}
+#love-count.bump{color:rgba(220,235,255,.8);transform:scale(1.15)}
+#msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);text-align:center;max-width:540px;width:90%;opacity:0;transition:all .85s cubic-bezier(.16,1,.3,1);pointer-events:none}
+#msg.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.msg-text{font-size:clamp(1.4rem,3.8vw,2.5rem);font-weight:300;font-style:italic;color:#f5f9ff;text-shadow:0 0 28px rgba(180,205,255,.5),0 2px 10px rgba(0,0,0,.9);line-height:1.55}
+#lyrics-box{position:absolute;bottom:110px;left:50%;transform:translateX(-50%);text-align:center;max-width:600px;width:88%;opacity:0;transition:opacity .6s ease;pointer-events:none}
+#lyrics-box.show{opacity:1}
+.lyric-line{font-size:clamp(1rem,2.6vw,1.5rem);font-weight:300;font-style:italic;color:#dce8ff;text-shadow:0 0 20px rgba(180,205,255,.55),0 2px 8px rgba(0,0,0,.85);min-height:2.2em;animation:lyricGlow 2.3s ease-in-out infinite alternate}
+@keyframes lyricGlow{to{text-shadow:0 0 32px rgba(240,180,255,.9),0 0 8px #fff}}
+#panel{position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:flex-start;align-items:flex-end;padding:0 28px 26px;pointer-events:none}
+.sparkle{position:fixed;pointer-events:none;z-index:300;border-radius:50%;animation:sparkleAnim .75s ease-out forwards}
+@keyframes sparkleAnim{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+.player-controls{pointer-events:auto;display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-family:'Josefin Sans',sans-serif;color:#dce8ff;font-size:11px;letter-spacing:1px}
+.player-controls button{border:1px solid rgba(190,210,255,.4);background:rgba(16,27,55,.65);backdrop-filter:blur(12px);color:#f1f5ff;border-radius:28px;padding:11px 16px;cursor:pointer}
+@media(max-width:600px){#panel{padding:0 14px 18px;justify-content:center}#lyrics-box{bottom:124px}.player-controls{gap:7px}.player-controls button{padding:10px}#cur,#cur2{display:none}}
+</style>
+</head>
+<body>
+<div id="cur"></div><div id="cur2"></div>
+
+<!-- AUDIO: pon mvs.mp3 en la misma carpeta que este archivo -->
+<audio id="bgAudio" src="mvs.mp3" loop preload="auto" playsinline></audio>
+
+<div id="loading">
+  <div class="load-moon">🌙</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+  <div class="load-txt" id="loadTxt">encendiendo la luna…</div>
+</div>
+
+<div id="intro">
+  <div class="intro-box">
+    <div class="moon-wrap" id="introMoon">
+      <div class="moon-core"><div class="moon-crater mc1"></div><div class="moon-crater mc2"></div><div class="moon-crater mc3"></div></div>
+    </div>
+    <h1 class="intro-h1">Bajo tu Luna</h1>
+    <p class="intro-tag">un cielo eterno · solo para ti</p>
+    <div class="intro-line"></div>
+    <p class="intro-foot">✦ toca la luna para entrar ✦</p>
+  </div>
+</div>
+
+<div id="wrap">
+  <div id="ui">
+    <div id="love-count">☾ 0</div>
+    <div id="msg"><p class="msg-text" id="msgText">Hasta la luna y de regreso, por ti.</p></div>
+    <div id="lyrics-box"><p class="lyric-line" id="lyricLine"></p></div>
+    <div id="panel">
+      <div class="player-controls" id="playerControls">
+        <button id="toggleMusic" type="button">❚❚ Pausar música</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/"}}</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
+/* ══ NOMBRE QUE APARECE EN 3D (cámbialo; la fuente no soporta tildes ni ñ). Vacío = no se muestra ══ */
+const NOMBRE = '';
+
+/* ══ CURSOR ══ */
+const cur = document.getElementById('cur'), cur2 = document.getElementById('cur2');
+document.addEventListener('mousemove', e => {
+  cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px';
+  cur2.style.left = e.clientX + 'px'; cur2.style.top = e.clientY + 'px';
+});
+document.addEventListener('mousedown', () => cur.style.transform = 'translate(-50%,-50%) scale(1.7)');
+document.addEventListener('mouseup', () => cur.style.transform = 'translate(-50%,-50%) scale(1)');
+
+/* ══ LOADING ══ */
+const loadBar = document.getElementById('loadBar'), loadTxt = document.getElementById('loadTxt');
+const loadEl = document.getElementById('loading'), introEl = document.getElementById('intro');
+const loadPhrases = ['encendiendo la luna…','contando estrellas…','tejiendo constelaciones…','puliendo el cielo…','casi listo…'];
+let prog = 0;
+const lt = setInterval(() => {
+  prog += Math.random() * 20 + 6;
+  if (prog > 98) prog = 99;
+  loadBar.style.width = prog + '%';
+  loadTxt.textContent = loadPhrases[Math.min(Math.floor(prog / 20), 4)];
+}, 200);
+setTimeout(() => {
+  clearInterval(lt); loadBar.style.width = '100%';
+  setTimeout(() => {
+    loadEl.style.opacity = '0';
+    setTimeout(() => { loadEl.style.display = 'none'; introEl.style.opacity = '1'; introEl.style.pointerEvents = 'all'; }, 1200);
+  }, 350);
+}, 2000);
+
+/* ══ AUDIO ══ */
+const audio = document.getElementById('bgAudio');
+let musicOn = false;
+function startMusic() {
+  if (musicOn) return;
+  musicRequested = true;
+  audio.volume = 0; audio.currentTime = 0;
+  audio.play().then(() => {
+    musicOn = true;
+    let v = 0;
+    const fi = setInterval(() => { v = Math.min(v + 0.04, 0.85); audio.volume = v; if (v >= 0.85) clearInterval(fi); }, 80);
+  }).catch(showAudioError);
+}
+
+/* ══ LETRA + EFECTOS ══ */
+const EFFECT_CUES = [
+  { time: 0.0,  text: 'Di que quieres la Luna',            eclipse:false, brillo:false, petals:false },
+  { time: 3.4,  text: 'Mírame aprender a volar',           eclipse:false, brillo:true,  petals:false },
+  { time: 7.0,  text: 'No hay montaña que puedas señalar', eclipse:false, brillo:true,  petals:true  },
+  { time: 10.8, text: 'Que yo no subiría',                 eclipse:true,  brillo:false, petals:true  },
+  { time: 14.2, text: 'Es una locura, pero es verdad',     eclipse:true,  brillo:true,  petals:false },
+  { time: 17.7, text: 'No hay nada que no haría',          eclipse:false, brillo:true,  petals:true  },
+  { time: 21.1, text: 'Lo arriesgaría todo por ti',        eclipse:false, brillo:true,  petals:true  },
+  { time: 24.9, text: 'Es una locura, pero es verdad',     eclipse:true,  brillo:false, petals:false },
+  { time: 28.4, text: 'No hay nada que no haría',          eclipse:false, brillo:true,  petals:true  },
+  { time: 32.0, text: 'Lo arriesgaría todo por ti',        eclipse:false, brillo:true,  petals:true  }
+];
+const lyricsBox = document.getElementById('lyrics-box'), lyricLine = document.getElementById('lyricLine');
+const musicToggle = document.getElementById('toggleMusic');
+let currentCue = -1, musicRequested = false;
+
+/* variables de la escena (declaradas aquí arriba para evitar errores de orden) */
+let scene, camera, renderer, controls, composer, bloomPass;
+let stars = [], t = 0, eclipseMode = false;
+let moonLight, flashLight, fillLight, keyLight, moonMesh;
+let clickCount = 0, brilloMode = false;
+let nameObjects = [];
+
+function updateLyrics() {
+  if (audio.paused || !musicOn || !moonMesh) { lyricsBox.classList.remove('show'); return; }
+  const ct = Math.max(0, audio.currentTime);
+  let index = -1;
+  for (let i = EFFECT_CUES.length - 1; i >= 0; i--) { if (ct >= EFFECT_CUES[i].time) { index = i; break; } }
+  if (index !== currentCue) { currentCue = index; if (index >= 0) applyCue(EFFECT_CUES[index]); }
+}
+audio.addEventListener('timeupdate', updateLyrics);
+audio.addEventListener('seeked', () => { currentCue = -1; updateLyrics(); });
+audio.addEventListener('ended', () => { currentCue = -1; lyricsBox.classList.remove('show'); if (musicRequested) { audio.currentTime = 0; audio.play().catch(() => {}); } });
+audio.addEventListener('pause', () => { lyricsBox.classList.remove('show'); musicToggle.textContent = '▶ Reproducir música'; });
+audio.addEventListener('play', () => { musicOn = true; musicToggle.textContent = '❚❚ Pausar música'; currentCue = -1; updateLyrics(); });
+audio.addEventListener('error', showAudioError);
+musicToggle.addEventListener('click', e => {
+  e.stopPropagation();
+  if (audio.paused) { musicRequested = true; audio.play().catch(showAudioError); }
+  else { musicRequested = false; audio.pause(); }
+});
+function showAudioError() {
+  musicToggle.textContent = '⚠ No se pudo cargar mvs.mp3';
+  musicToggle.title = 'Coloca mvs.mp3 junto a index.html y abre desde un servidor local';
+}
+function applyCue(cue) {
+  if (lyricLine.textContent !== cue.text) lyricLine.textContent = cue.text;
+  lyricsBox.classList.add('show');
+  setEclipse(cue.eclipse); setBrillo(cue.brillo); setPetals(cue.petals);
+}
+
+/* ══ ESTRELLAS CAYENDO ══ */
+const petalSymbols = ['🌙','✦','✧','⋆','✨','☾'];
+let petalRain = false, petalIv;
+function spawnPetal() {
+  const p = document.createElement('div');
+  p.className = 'fp';
+  p.textContent = petalSymbols[Math.floor(Math.random() * petalSymbols.length)];
+  p.style.left = (Math.random() * 110 - 5) + 'vw';
+  p.style.fontSize = (0.7 + Math.random()) + 'rem';
+  p.style.animationDuration = (5 + Math.random() * 5) + 's';
+  p.style.color = `hsl(${210 + Math.random() * 30},80%,${75 + Math.random() * 15}%)`;
+  p.style.filter = `drop-shadow(0 0 ${4 + Math.random() * 6}px rgba(180,205,255,0.5))`;
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 11000);
+}
+function setPetals(on) {
+  if (petalRain === on) return;
+  petalRain = on;
+  if (petalRain) { for (let i = 0; i < 6; i++) setTimeout(spawnPetal, i * 180); petalIv = setInterval(spawnPetal, 450); }
+  else clearInterval(petalIv);
+}
+setInterval(() => { if (Math.random() < 0.25) spawnPetal(); }, 2500);
+
+/* ══ SPARKLES ══ */
+function burst(x, y, n = 12) {
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const a = (i / n) * Math.PI * 2 + Math.random() * 0.3, d = 35 + Math.random() * 70;
+    s.style.cssText = `left:${x}px;top:${y}px;width:${2 + Math.random() * 4}px;height:${2 + Math.random() * 4}px;background:${Math.random() > 0.4 ? '#cfe0ff' : '#fff'};animation-duration:${0.5 + Math.random() * 0.45}s;`;
+    s.style.setProperty('--dx', Math.cos(a) * d + 'px');
+    s.style.setProperty('--dy', Math.sin(a) * d + 'px');
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 900);
+  }
+}
+
+/* ══ THREE.JS ══ */
+const PHRASES = [
+  'Contigo hasta la luna y de regreso,','Cada estrella brilla para ti',
+  'La luna guarda tu nombre esta noche','Bajo este cielo, todo es tuyo',
+  'Eres la luz que ilumina la noche','Ningún cielo es tan bonito sin ti',
+  'Esta luna solo brilla para ti','Contarte las estrellas nunca será suficiente',
+  'Aquí, contigo, el tiempo se detiene','Tu nombre brilla más que cualquier estrella'
+];
+
+function initScene() {
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x02040c);
+  scene.fog = new THREE.FogExp2(0x02040c, 0.018);
+
+  camera = new THREE.PerspectiveCamera(40, innerWidth / innerHeight, 0.1, 200);
+  camera.position.set(0, 4, 12);
+  camera.lookAt(0, 1, 0);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.35;
+  document.getElementById('wrap').appendChild(renderer.domElement);
+
+  composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  bloomPass = new UnrealBloomPass(new THREE.Vector2(innerWidth / 2, innerHeight / 2), 0.85, 0.55, 0.2);
+  composer.addPass(bloomPass);
+
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; controls.dampingFactor = 0.06;
+  controls.rotateSpeed = 0.85; controls.zoomSpeed = 0.6;
+  controls.enablePan = false; controls.target.set(0, 1, 0);
+  controls.minDistance = 5; controls.maxDistance = 20;
+  controls.maxPolarAngle = Math.PI / 1.9;
+
+  buildLights(); buildBackdrop(); buildMoonScene(); buildNameSign();
+
+  window.addEventListener('resize', onResize);
+  window.addEventListener('click', onSceneClick);
+  animate();
+}
+
+function buildLights() {
+  scene.add(new THREE.AmbientLight(0x0c1230, 0.55));
+  moonLight = new THREE.DirectionalLight(0xdce8ff, 2.0);
+  moonLight.position.set(3, 6, 4);
+  moonLight.castShadow = true;
+  moonLight.shadow.mapSize.set(1024, 1024);
+  moonLight.shadow.camera.left = -7; moonLight.shadow.camera.right = 7;
+  moonLight.shadow.camera.top = 7; moonLight.shadow.camera.bottom = -7;
+  moonLight.shadow.bias = -0.001;
+  scene.add(moonLight);
+  fillLight = new THREE.PointLight(0x6f8fe0, 1.1, 13); fillLight.position.set(-3, 3, 2); scene.add(fillLight);
+  keyLight = new THREE.PointLight(0xbcd4ff, 1.4, 10); keyLight.position.set(0, 1.6, 2); scene.add(keyLight);
+  const fill3 = new THREE.PointLight(0x8fa8e0, 0.5, 8); fill3.position.set(0, 0.5, 4); scene.add(fill3);
+  flashLight = new THREE.PointLight(0xffffff, 0, 12); flashLight.position.set(0, 2.5, 0); scene.add(flashLight);
+}
+
+let bgStars;
+function buildBackdrop() {
+  const count = 1400, geo = new THREE.BufferGeometry(), pos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const r = 40 + Math.random() * 40, th = Math.random() * Math.PI * 2, ph = Math.acos(Math.random() * 2 - 1);
+    pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
+    pos[i * 3 + 1] = Math.abs(r * Math.cos(ph)) * 0.6 + 2;
+    pos[i * 3 + 2] = r * Math.sin(ph) * Math.sin(th);
+  }
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  bgStars = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.09, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false }));
+  scene.add(bgStars);
+
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(9, 48), new THREE.MeshStandardMaterial({ color: 0x050912, roughness: 0.35, metalness: 0.15 }));
+  floor.rotation.x = -Math.PI / 2; floor.position.y = -1.6; floor.receiveShadow = true;
+  scene.add(floor);
+
+  [3.0, 4.0].forEach(r => {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.014, 4, 64), new THREE.MeshStandardMaterial({ color: 0x9db8e8, emissive: 0x1a2a5a, emissiveIntensity: 0.35, roughness: 0.4 }));
+    ring.rotation.x = -Math.PI / 2; ring.position.y = -1.58;
+    scene.add(ring);
+  });
+}
+
+function buildMoonScene() {
+  const moonGroup = new THREE.Group();
+  moonMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(1.9, 64, 64),
+    new THREE.MeshStandardMaterial({ color: 0xe6edff, roughness: 0.85, metalness: 0.02, emissive: 0x1a2440, emissiveIntensity: 0.12 })
+  );
+  moonMesh.position.set(0, 0.9, 0);
+  moonMesh.castShadow = true; moonMesh.receiveShadow = true;
+  moonGroup.add(moonMesh);
+
+  const craterMat = new THREE.MeshStandardMaterial({ color: 0xaebedd, roughness: 0.95 });
+  for (let i = 0; i < 26; i++) {
+    const dir = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() * 0.5 + 0.3).normalize();
+    const crater = new THREE.Mesh(new THREE.CircleGeometry(0.06 + Math.random() * 0.16, 16), craterMat);
+    crater.position.copy(dir.clone().multiplyScalar(1.905)).add(moonMesh.position);
+    crater.lookAt(dir.clone().multiplyScalar(4).add(moonMesh.position));
+    moonGroup.add(crater);
+  }
+
+  const halo = new THREE.Mesh(
+    new THREE.TorusGeometry(2.6, 0.012, 6, 96),
+    new THREE.MeshStandardMaterial({ color: 0xcfe0ff, emissive: 0x9fc0ff, emissiveIntensity: 0.5, roughness: 0.3, transparent: true, opacity: 0.55 })
+  );
+  halo.position.copy(moonMesh.position);
+  halo.rotation.x = Math.PI / 2.4; halo.rotation.z = 0.3;
+  moonGroup.add(halo);
+  moonGroup.userData.halo = halo;
+  moonGroup.userData.mesh = moonMesh;
+
+  scene.add(moonGroup);
+  scene.userData.moonGroup = moonGroup;
+
+  buildStarfield(moonMesh.position);
+  createAura();
+}
+
+function mkStar(x, y, z, scale, phase) {
+  const mesh = new THREE.Mesh(
+    new THREE.OctahedronGeometry(scale, 0),
+    new THREE.MeshStandardMaterial({ color: 0xf3f7ff, roughness: 0.2, metalness: 0.1, emissive: 0xaecbff, emissiveIntensity: 0.55 })
+  );
+  mesh.position.set(x, y, z);
+  mesh.castShadow = true;
+  mesh.userData = { phase, baseY: y, baseEm: 0.55 + Math.random() * 0.25 };
+  return mesh;
+}
+
+function buildStarfield(center) {
+  [
+    { n: 12, rMin: 2.6, rMax: 3.2, sMin: 0.05, sMax: 0.11 },
+    { n: 16, rMin: 3.4, rMax: 4.2, sMin: 0.06, sMax: 0.14 },
+    { n: 20, rMin: 4.4, rMax: 5.4, sMin: 0.05, sMax: 0.12 }
+  ].forEach(cfg => {
+    for (let i = 0; i < cfg.n; i++) {
+      const a = Math.random() * Math.PI * 2, r = cfg.rMin + Math.random() * (cfg.rMax - cfg.rMin);
+      const y = center.y + (Math.random() - 0.4) * 2.6, s = cfg.sMin + Math.random() * (cfg.sMax - cfg.sMin);
+      const star = mkStar(center.x + Math.cos(a) * r, y, center.z + Math.sin(a) * r, s, Math.random() * 10);
+      scene.add(star); stars.push(star);
+    }
+  });
+}
+
+/* ── NOMBRE 3D ── */
+function buildNameSign() {
+  if (!NOMBRE) return;
+  const group = new THREE.Group();
+  group.position.set(2.9, 1.4, 1.7);
+  group.rotation.y = -0.45;
+  scene.add(group);
+  nameObjects.push({ obj: group, phase: Math.random() * 10 });
+
+  new FontLoader().load(
+    'https://cdn.jsdelivr.net/npm/three@0.158.0/examples/fonts/helvetiker_regular.typeface.json',
+    font => {
+      const textGeo = new TextGeometry(NOMBRE, {
+        font, size: 0.78, height: 0.2, curveSegments: 12,
+        bevelEnabled: true, bevelThickness: 0.045, bevelSize: 0.028, bevelSegments: 5
+      });
+      textGeo.center();
+      const textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({
+        color: 0xf3f8ff, roughness: 0.22, metalness: 0.35, emissive: 0x9db8ea, emissiveIntensity: 0.4
+      }));
+      textMesh.castShadow = true;
+      group.add(textMesh);
+    },
+    undefined,
+    err => console.warn('No se pudo cargar la fuente 3D', err)
+  );
+}
+
+/* ── ECLIPSE ── */
+function setEclipse(on) {
+  if (eclipseMode === on || !moonLight) return;
+  eclipseMode = on;
+  moonLight.intensity = eclipseMode ? 0.65 : (brilloMode ? 3.6 : 2.0);
+  if (eclipseMode) {
+    moonLight.color.set(0xff8a5a); fillLight.color.set(0xaa4422); keyLight.color.set(0xdb6a3a);
+    moonMesh.material.emissive.set(0x5a1c0a);
+  } else keyLight.color.set(0xbcd4ff);
+  scene.background = new THREE.Color(eclipseMode ? 0x0a0402 : 0x02040c);
+  scene.fog.color.set(eclipseMode ? 0x0a0402 : 0x02040c);
+  renderer.toneMappingExposure = brilloMode ? (eclipseMode ? 1.1 : 2.1) : (eclipseMode ? 1.1 : 1.35);
+  bloomPass.strength = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 0.85);
+}
+
+/* ── BRILLO ── */
+function setBrillo(on) {
+  if (brilloMode === on || !bloomPass) return;
+  brilloMode = on;
+  bloomPass.strength = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 0.85);
+  bloomPass.radius = brilloMode ? 0.9 : 0.5;
+  bloomPass.threshold = brilloMode ? 0.05 : 0.2;
+  renderer.toneMappingExposure = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 1.35);
+  keyLight.distance = brilloMode ? 14 : 10;
+  moonLight.intensity = brilloMode ? 3.6 : (eclipseMode ? 0.65 : 2.0);
+}
+
+function onSceneClick(e) {
+  clickCount++;
+  burst(e.clientX, e.clientY);
+  flashLight.intensity = 4.0;
+  bloomPass.strength = eclipseMode ? 1.7 : 1.5;
+  setTimeout(() => { flashLight.intensity = 0; bloomPass.strength = brilloMode ? 2.1 : (eclipseMode ? 1.1 : 0.85); }, 170);
+  stars.forEach(s => { s.userData.flash = 1.0; });
+  for (let i = 0; i < 3; i++) setTimeout(spawnPetal, i * 90);
+  const lc = document.getElementById('love-count');
+  lc.textContent = '☾ ' + clickCount;
+  lc.classList.add('bump');
+  setTimeout(() => lc.classList.remove('bump'), 400);
+  if (clickCount === 1 || clickCount % 4 === 0) {
+    document.getElementById('msgText').textContent = PHRASES[Math.floor(Math.random() * PHRASES.length)];
+    const m = document.getElementById('msg');
+    m.classList.add('show');
+    setTimeout(() => m.classList.remove('show'), 3800);
+  }
+}
+
+/* ── LUNA CAMBIA DE COLOR + AURA ── */
+const moonPalette = ['#c4dcff','#d3b4ff','#ffb9db','#ffe2ad','#b6f5ec','#b5ccff'].map(c => new THREE.Color(c));
+const blendedMoon = new THREE.Color();
+let auraMesh = null;
+function createAura() {
+  const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128;
+  const ctx = canvas.getContext('2d');
+  const grad = ctx.createRadialGradient(64, 64, 7, 64, 64, 64);
+  grad.addColorStop(0, 'rgba(255,255,255,0.28)');
+  grad.addColorStop(0.48, 'rgba(160,190,255,0.14)');
+  grad.addColorStop(1, 'rgba(160,190,255,0)');
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, 128, 128);
+  auraMesh = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: new THREE.CanvasTexture(canvas), color: 0xffffff, transparent: true,
+    depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.85
+  }));
+  auraMesh.position.copy(moonMesh.position);
+  auraMesh.scale.set(7.6, 7.6, 1);
+  scene.add(auraMesh);
+}
+function animateMoonColors(seconds) {
+  if (!moonMesh) return;
+  const travel = seconds / 5.8;
+  const first = Math.floor(travel) % moonPalette.length, second = (first + 1) % moonPalette.length;
+  const mix = (1 - Math.cos((travel % 1) * Math.PI)) / 2;
+  blendedMoon.copy(moonPalette[first]).lerp(moonPalette[second], mix);
+  moonMesh.material.color.copy(blendedMoon);
+  if (!eclipseMode) {
+    moonMesh.material.emissive.copy(blendedMoon).multiplyScalar(0.27);
+    moonLight.color.copy(blendedMoon);
+    fillLight.color.copy(blendedMoon);
+  }
+  const pulse = 1 + Math.sin(seconds * 2.2) * 0.045;
+  if (auraMesh) {
+    auraMesh.material.color.copy(blendedMoon);
+    auraMesh.material.opacity = 0.68 + 0.18 * Math.sin(seconds * 1.7);
+    auraMesh.scale.setScalar(7.6 * pulse);
+  }
+  const halo = scene.userData.moonGroup?.userData.halo;
+  if (halo) { halo.material.color.copy(blendedMoon); halo.material.emissive.copy(blendedMoon); halo.material.emissiveIntensity = 0.5 + 0.22 * Math.sin(seconds * 1.4); }
+}
+
+/* ── ANIMACIÓN ── */
+function animate() {
+  requestAnimationFrame(animate);
+  t += 0.011;
+
+  if (scene.userData.moonGroup) {
+    scene.userData.moonGroup.userData.mesh.rotation.y += 0.0009;
+    scene.userData.moonGroup.userData.halo.rotation.z += 0.0006;
+  }
+  if (bgStars) bgStars.rotation.y += 0.00025;
+
+  stars.forEach(s => {
+    const ph = s.userData.phase;
+    s.position.y = s.userData.baseY + Math.sin(t * 1.1 + ph) * 0.05;
+    s.rotation.y += 0.004; s.rotation.x += 0.002;
+    let em = s.userData.baseEm + Math.sin(t * 2.4 + ph) * 0.2;
+    if (s.userData.flash > 0) { em += s.userData.flash * 1.2; s.userData.flash = Math.max(0, s.userData.flash - 0.045); }
+    s.material.emissiveIntensity = em;
+  });
+
+  nameObjects.forEach(n => {
+    n.obj.position.y = 1.4 + Math.sin(t * 0.9 + n.phase) * 0.06;
+    n.obj.rotation.y = -0.45 + Math.sin(t * 0.35 + n.phase) * 0.12;
+  });
+
+  animateMoonColors(t * 5);
+
+  fillLight.position.x = Math.cos(t * 0.22) * 2.6;
+  fillLight.position.z = Math.sin(t * 0.18) * 2.0;
+  keyLight.intensity = (brilloMode ? 3.2 : 1.4) + Math.sin(t * 3.2) * 0.2;
+  if (flashLight.intensity > 0) flashLight.intensity *= 0.86;
+
+  controls.update();
+  composer.render();
+}
+
+function onResize() {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+  composer.setSize(innerWidth, innerHeight);
+}
+
+/* ══ ENTRADA ══ */
+document.getElementById('introMoon').addEventListener('click', () => {
+  const moon = document.getElementById('introMoon');
+  if (moon.classList.contains('entering')) return;
+  moon.classList.add('entering');
+  document.querySelectorAll('.intro-h1,.intro-tag,.intro-line,.intro-foot').forEach(el => el.classList.add('fading-out'));
+  startMusic();
+  setTimeout(() => {
+    introEl.style.opacity = '0'; introEl.style.pointerEvents = 'none';
+    setTimeout(() => {
+      introEl.style.display = 'none';
+      document.getElementById('wrap').classList.add('show');
+      initScene();
+      for (let i = 0; i < 10; i++) setTimeout(spawnPetal, i * 220);
+      setTimeout(() => {
+        document.getElementById('msg').classList.add('show');
+        setTimeout(() => document.getElementById('msg').classList.remove('show'), 5000);
+      }, 1400);
+    }, 900);
+  }, 500);
+});
+</script>
+</body>
+</html>
